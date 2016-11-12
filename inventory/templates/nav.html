@@ -1,0 +1,56 @@
+<nav id="mainNav" style="padding: 10px" class="navbar navbar-default navbar-fixed-top navbar-custom">
+    <div class="container">
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#page-top" style="font-size: 22px;">Inventory Management</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right notify">
+                <li class="page-scroll">
+                    <a href="#">logged in as '{{ username }}'</a>
+                </li>
+                <li class="page-scroll notify">
+                    <li class="dropdown">
+                        <a  href="#" class="dropdown-toggle" data-toggle="dropdown" style=" color: #fff; background-color: transparent;">
+                            <i class="fa fa-bell" style="font-size: 18px;"></i>
+                            {% if notifications %}
+                                <span class="badge notify-alert">&nbsp;</span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% if notifications %}
+                                <li>
+                                    <a href="/clear_notify/{{ user_id }}" class="pull-right" style="color: #18BC9C; margin-right: 5px;">
+                                        clear all
+                                    </a>
+                                </li>
+                                {% for notification in notifications %}
+                                    <li>
+                                        <a href="#">{{ notification }}</a>
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>
+                                    <a href="#">Everything is clear!</a>
+                                </li>
+                            {% endif %}
+                            <li class="text-center">
+                                <a href="/notifications/{{ user_id }}" style="color: #18BC9C;">
+                                    show all
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </li>
+                <li class="page-scroll">
+                    <a href="/products/{{ user_id }}/#product">Products</a>
+                </li>
+                <li class="page-scroll">
+                    <a href="/">Signout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

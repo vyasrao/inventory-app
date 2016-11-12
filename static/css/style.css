@@ -1,0 +1,16 @@
+.notify > li.dropdown.open > ul > li > a {
+    color: #000;
+    font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+    text-transform: none;
+}
+
+.notify-alert{
+    line-height: 0px;
+    padding: 7px 5px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #18BC9C;
+}

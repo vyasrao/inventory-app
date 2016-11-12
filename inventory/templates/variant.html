@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Variants of {{ product_name }}</title>
+    {% include "header.html" %}
+</head>
+<body id="page-top" class="index">
+    {% include "nav.html" %}
+    <section id="variants">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1">
+                <h3>{{ product_name }}</h3>
+            </div>
+        </div>
+        <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#add_variant">
+                Add New Variant
+            </button>
+        </div>
+            <div class="col-lg-10 col-lg-offset-1">
+            <input type="hidden" id="user" value="{{ user_id }}">
+            <input type="hidden" id="product" value="{{ product_id }}">
+                <div class="table-responsive" style="background-color: #fff;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>name</th>
+                                <th>code</th>
+                                <th>description</th>
+                                <th>selling price</th>
+                                <th>cost price</th>
+                                <th>options</th>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if variants %}
+                            {% for variant in variants %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{ variant.name }}</td>
+                                    <td>{{ variant.code }}</td>
+                                    <td>{{ variant.description }}</td>
+                                    <td>{{ variant.selling_price }}</td>
+                                    <td>{{ variant.cost_price }}</td>
+                                    <td>
+                                        {% for option in variant.options %}
+                                            {{ option.key }} : {{ option.value }} <br />
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-default btn-sm" style="min-width: 60px;"
+                                                onclick='modal_edit_variant(
+                                                        "{{ variant.id }}",
+                                                        "{{ variant.name }}",
+                                                        "{{ variant.code }}",
+                                                        "{{ variant.description }}",
+                                                        "{{ variant.selling_price }}",
+                                                        "{{ variant.cost_price }}",
+                                                        "{{ variant.options }}"
+                                                        )'>Edit</button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick='delete_variant({{ variant.id }})'>Delete</button>
+                                    </td>
+                                </tr>
+                            {%  endfor %}
+                         {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No Data Exists</td>
+                                </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Modal: New variant -->
+    <div class="modal fade" id="add_variant" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">New variant</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">{% csrf_token %}
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Name</div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" placeholder="Name" id="variant_name">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Code</div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" placeholder="Code" id="variant_code">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Description</div>
+                            <div class="col-lg-6">
+                                <textarea placeholder="Description" class="form-control" id="variant_desc"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Selling Price</div>
+                            <div class="col-lg-6">
+                                <input type="text" placeholder="Selling Price" class="form-control" id="variant_sell_price">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Cost Price</div>
+                            <div class="col-lg-6">
+                                <input type="text" placeholder="Cost Price" class="form-control" id="variant_cost_price">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1"><b>Options</b></div>
+                            <div class="col-lg-6">
+                                <input type='button' value='add option' onclick="addOption('#new_variant_options','','')" class='btn btn-default btn-sm pull-right' />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8 col-lg-offset-1">
+                                <div class="row" id="new_variant_options">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">&nbsp;</div>
+                            <div class="col-lg-6" id="new_variant_status">
+                                &nbsp;
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="add_variant()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal: Edit variant -->
+    <div class="modal fade" id="edit_variant" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Edit variant</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">{% csrf_token %}
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Name</div>
+                            <div class="col-lg-6">
+                                <input type="hidden" class="form-control" placeholder="Name" id="e_variant_id">
+                                <input type="text" class="form-control" data-original="" placeholder="Name" id="e_variant_name">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Code</div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" data-original="" placeholder="Code" id="e_variant_code">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Description</div>
+                            <div class="col-lg-6">
+                                <textarea placeholder="Description" class="form-control" data-original="" id="e_variant_desc"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Selling Price</div>
+                            <div class="col-lg-6">
+                                <input type="text" placeholder="Selling Price" class="form-control" data-original="" id="e_variant_sell_price">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">Cost Price</div>
+                            <div class="col-lg-6">
+                                <input type="text" placeholder="Cost Price" class="form-control" data-original="" id="e_variant_cost_price">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1"><b>Options</b></div>
+                            <div class="col-lg-6">
+                                <input type='button' value='add option' onclick="addOption('#edit_variant_options','','')" class='btn btn-default btn-sm pull-right' />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8 col-lg-offset-1">
+                                <div class="row" id="edit_variant_options">
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-3 col-lg-offset-1">&nbsp;</div>
+                            <div class="col-lg-6" id="edit_variant_status">
+                                &nbsp;
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="edit_variant()">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+    <script>
+        function add_variant() {
+
+            $("#new_variant_status").html("");
+
+            if($("#variant_name").val() == "")
+                $("#variant_name").focus();
+            else if($("#variant_code").val() == "")
+                $("#variant_code").focus();
+            else if($("#variant_desc").val() == "")
+                $("#variant_desc").focus();
+            else if($("#variant_sell_price").val() == "")
+                $("#variant_sell_price").focus();
+            else if($("#variant_cost_price").val() == "")
+                $("#variant_cost_price").focus();
+            else {
+                var options = getOptions('#new_variant_options');
+                $.ajax({
+                    url: '/add_variant',
+                    type: "POST",
+                    data: {
+                        user_id: $("#user").val(),
+                        product_id: $("#product").val(),
+                        name: $("#variant_name").val(),
+                        desc: $("#variant_desc").val(),
+                        code: $("#variant_code").val(),
+                        sell: $("#variant_sell_price").val(),
+                        cost: $("#variant_cost_price").val(),
+                        options: JSON.stringify(options)
+                    }
+                }).done(function (returned_data) {
+                    console.log(returned_data)
+                    if (returned_data.status) {
+                        location.reload();
+                    }
+                    else {
+                        $("#new_variant_status").html(returned_data.info);
+                    }
+                });
+            }
+        }
+
+        function modal_edit_variant(id, name, code, desc, selling_price, cost_price, variant_options) {
+            $('#edit_variant_options').html("");
+            $("#edit_variant_status").html("");
+            $("#e_variant_id").val(id);
+
+            $("#e_variant_name").val(name);
+            $("#e_variant_name").data("original", name);
+
+            $("#e_variant_code").val(code);
+            $("#e_variant_code").data("original", code);
+
+            $("#e_variant_desc").val(desc);
+            $("#e_variant_desc").data("original", desc);
+
+            $("#e_variant_sell_price").val(selling_price);
+            $("#e_variant_sell_price").data("original", selling_price);
+
+            $("#e_variant_cost_price").val(cost_price);
+            $("#e_variant_cost_price").data("original", cost_price);
+
+            var options = (variant_options);
+
+            if(options != "None" && options != "" && options != null) {
+
+                options = JSON.parse(options.replace(/'/g, '"'));
+                $("#edit_variant_options").html("");
+                $.each(options, function (k, v) {
+                    addOption('#edit_variant_options', v.key,v.value);
+                });
+            }
+
+            $("#edit_variant").modal();
+        }
+
+        function edit_variant() {
+
+            if($("#e_variant_name").val() == "")
+                $("#e_variant_name").focus();
+            else if($("#e_variant_code").val() == "")
+                $("#e_variant_code").focus();
+            else if($("#e_variant_desc").val() == "")
+                $("#e_variant_desc").focus();
+            else if($("#e_variant_sell_price").val() == "")
+                $("#e_variant_sell_price").focus();
+            else if($("#e_variant_cost_price").val() == "")
+                $("#e_variant_cost_price").focus();
+            else {
+
+                var options = getOptions('#edit_variant_options');
+
+                var data = {
+                    user_id: $("#user").val(),
+                    product_id: $("#product").val(),
+                    id: $("#e_variant_id").val(),
+                    options: JSON.stringify(options)
+                };
+
+                if($("#e_variant_name").val() != $("#e_variant_name").data("original")) {
+                    data["name"] = $("#e_variant_name").val();
+                }
+                if($("#e_variant_desc").val() != $("#e_variant_desc").data("original")) {
+                    data["desc"] = $("#e_variant_desc").val();
+                }
+                if($("#e_variant_code").val() != $("#e_variant_code").data("original")) {
+                    data["code"] = $("#e_variant_code").val();
+                }
+                if($("#e_variant_sell_price").val() != $("#e_variant_sell_price").data("original")) {
+                    data["sell"] = $("#e_variant_sell_price").val();
+                }
+                if($("#e_variant_cost_price").val() != $("#e_variant_cost_price").data("original")) {
+                    data["cost"] = $("#e_variant_cost_price").val();
+                }
+                $.ajax({
+                    url: '/edit_variant',
+                    type: "POST",
+                    data: data
+                }).done(function (returned_data) {
+                    if (returned_data.status) {
+                        location.reload();
+                    }
+                    else {
+                        $("#edit_variant_status").html(returned_data.info);
+                    }
+                });
+            }
+        }
+        $("body").on("click", ".remove", function () {
+            $(this).parent("div").parent().remove();
+        });
+
+        function addOption(obj, key, value){
+            var div = $("<div />");
+            div.html("<div class='row'><br/>" +
+                    "<div class='col-lg-5'><input type='text' class='form-control key' value = '" + key + "' /></div>" +
+                    "<div class='col-lg-6'><input type='text' class='form-control value' value = '" + value+ "' /></div>" +
+                    "<div class='col-lg-1'><input type='button' value='remove' class='remove btn btn-danger btn-sm' /></div>" +
+                    "</div>");
+            $(obj).append(div);
+        }
+
+        function getOptions(obj){
+            var options = [];
+            $.each( $('.row', obj), function(i, childRow) {
+               $(childRow).each(function(i, child) {
+                   var key = $(child).find(".key");
+                   var value = $(child).find(".value");
+                   if(key != "" && value != "") {
+                        options.push({"key": key.val(), "value": value.val()})
+                   }
+               });
+            });
+            return options;
+        }
+
+        function delete_variant(variant_id) {
+
+            $.ajax({
+                url: '/delete_variant',
+                type: "POST",
+                data: {
+                    user_id: $("#user").val(),
+                    product_id: $("#product").val(),
+                    variant_id: variant_id
+                }
+            }).done(function (returned_data) {
+                console.log(returned_data)
+                if (returned_data.status) {
+                    location.reload();
+                }
+                else {
+                    alert("Error Occured...!");
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notifications</title>
+    {% include "header.html" %}
+</head>
+<body id="page-top" class="index">
+    {% include "nav.html" %}
+    <section id="products">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1">
+                {% if all_notifications %}
+                    <a href="/clear_notify/{{ user_id }}" class="pull-right">
+                        clear all notifications
+                    </a>
+                {% endif %}
+                <br/><br/>
+            </div>
+            <div class="col-lg-10 col-lg-offset-1">
+                <div class="table-responsive" style="background-color: #fff;">
+                    <table class="table table-striped">
+                        <tbody>
+                        {% if all_notifications %}
+                            {% for notification in all_notifications %}
+                                <tr>
+                                    <td>{{notification}}</td>
+                                </tr>
+                            {%  endfor %}
+                         {% else %}
+                                <tr>
+                                    <td class="text-center"><b>Sergeant</b>: Everything clear commander!</td>
+                                </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% include "footer.html" %}
+</body>
+</html>

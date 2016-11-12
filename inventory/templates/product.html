@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Products</title>
+    {% include "header.html" %}
+</head>
+<body id="page-top" class="index">
+    {% include "nav.html" %}
+    <section id="products">
+        <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#add_product">
+                Add New Product
+            </button>
+            <input type="hidden" id="user" value="{{ user_id }}">
+        </div>
+            <div class="col-lg-10 col-lg-offset-1">
+
+                <div class="table-responsive" style="background-color: #fff;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>name</th>
+                                <th>code</th>
+                                <th>description</th>
+                                <th>variants</th>
+                                <th>status</th>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if products %}
+                            {% for product in products %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.code }}</td>
+                                    <td>{{ product.description }}</td>
+                                    <td><a href="/variants/{{ user_id }}/{{ product.id }}">variants</a></td>
+                                    <td>
+                                        {% if product.is_valid == 1 %}
+                                            active
+                                        {% else %}
+                                            inactive
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-default btn-sm" onclick="modal_edit_product({{ product.id }}, '{{ product.name }}', '{{ product.code }}', '{{ product.description }}')" style="min-width: 60px;">Edit</button>
+                                     </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="delete_product({{ product.id }})">Delete</button>
+                                    </td>
+                                </tr>
+                            {%  endfor %}
+                         {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center">No Data Exists</td>
+                                </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Modal: New Product -->
+    <div class="modal fade" id="add_product" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">New Product</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">{% csrf_token %}
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">Name</div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" placeholder="Name" id="product_name">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">Code</div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" placeholder="Code" id="product_code">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">Description</div>
+                            <div class="col-lg-6">
+                                <textarea placeholder="Description" class="form-control" id="product_desc"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">&nbsp;</div>
+                            <div class="col-lg-6" id="new_product_status">
+                                &nbsp;
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="add_product()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal: Edit Product -->
+    <div class="modal fade" id="edit_product" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Edit Product</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">{% csrf_token %}
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">Name</div>
+                            <div class="col-lg-6">
+                                <input type="hidden" class="form-control" placeholder="Name" id="e_product_id">
+                                <input type="text" class="form-control" data-original="" placeholder="Name" id="e_product_name">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">Code</div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" data-original="" placeholder="Code" id="e_product_code">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">Description</div>
+                            <div class="col-lg-6">
+                                <textarea placeholder="Description" data-original="" class="form-control" id="e_product_desc"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg-2 col-lg-offset-1">&nbsp;</div>
+                            <div class="col-lg-6" id="edit_product_status">
+                                &nbsp;
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="edit_product()">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "footer.html" %}
+
+    <script>
+        function add_product() {
+
+            if($("#product_name").val() == "")
+                $("#product_name").focus();
+            else if($("#product_code").val() == "")
+                $("#product_code").focus();
+            else if($("#product_desc").val() == "")
+                $("#product_desc").focus();
+            else {
+                $.ajax({
+                    url: '/add_product',
+                    type: "POST",
+                    data: {
+                        user_id: $("#user").val(),
+                        name: $("#product_name").val(),
+                        desc: $("#product_desc").val(),
+                        code: $("#product_code").val()
+                    }
+                }).done(function (returned_data) {
+                    console.log(returned_data)
+                    if (returned_data.status) {
+                        location.reload();
+                    }
+                    else {
+                        $("#new_product_status").html(returned_data.info);
+                    }
+                });
+            }
+        }
+
+        function modal_edit_product(id, name, code, desc) {
+            $("#e_product_id").val(id);
+
+            $("#e_product_name").val(name);
+            $("#e_product_name").data("original", name);
+
+            $("#e_product_code").val(code);
+            $("#e_product_code").data("original", code);
+
+            $("#e_product_desc").val(desc);
+            $("#e_product_desc").data("original", desc);
+
+            $("#edit_product").modal();
+        }
+
+        function edit_product() {
+
+            if($("#e_product_name").val() == "")
+                $("#e_product_name").focus();
+            else if($("#e_product_code").val() == "")
+                $("#e_product_code").focus();
+            else if($("#e_product_desc").val() == "")
+                $("#e_product_desc").focus();
+            else {
+
+                var data = {
+                    user_id: $("#user").val(),
+                    id: $("#e_product_id").val(),
+                };
+
+                if($("#e_product_name").val() != $("#e_product_name").data("original")) {
+                    data["name"] = $("#e_product_name").val();
+                }
+                if($("#e_product_code").val() != $("#e_product_code").data("original")) {
+                    data["code"] = $("#e_product_code").val();
+                }
+                if($("#e_product_desc").val() != $("#e_product_desc").data("original")) {
+                    data["desc"] = $("#e_product_desc").val();
+                }
+
+                $.ajax({
+                    url: '/edit_product',
+                    type: "POST",
+                    data: data
+                }).done(function (returned_data) {
+                    console.log(returned_data)
+                    if (returned_data.status) {
+                        location.reload();
+                    }
+                    else {
+                        $("#edit_product_status").html(returned_data.info);
+                    }
+                });
+            }
+        }
+
+        function delete_product(id) {
+
+            $.ajax({
+                url: '/delete_product',
+                type: "POST",
+                data: {
+                    product_id: id,
+                    user_id: $("#user").val(),
+                }
+            }).done(function (returned_data) {
+                console.log(returned_data)
+                if (returned_data.status) {
+                    location.reload();
+                }
+                else {
+                    alert("Error Occured...!");
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
